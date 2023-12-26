@@ -1,0 +1,6 @@
+Package: wings
+Version: 1.11.8
+Maintainer: Matthew Penner <matthew@pterodactyl.io> for the main program, ItzBenoitXD <amogus@stozu.net> for the package
+Architecture: arm64
+Homepage: https://pterodactyl.io
+Description: The server control plane for Pterodactyl Panel.

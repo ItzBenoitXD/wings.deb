@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Check if swap is enabled
+if [ "$(swapon --show | wc -l)" -eq 0 ]; then
+    echo -e "${YELLOW}Warning:${NC} Swap is not enabled on the system. This package will ${RED}NOT${NC} enable swap for you."
+    echo "If you need swap space, you can enable it by following the instructions at: https://pterodactyl.io/wings/1.0/installing.html#enabling-swap"
+    echo -e "Enabling swap is entirely optional, but we recommend doing it if you will be hosting for others and to prevent ${RED}OOM errors.${NC}"
+else
+    echo -e "Swap is already ${GREEN}enabled${NC} on the system. You should be good to go!"
+fi
+
+# Make a space because yes
+echo ""
+
+# Check for required packages
+required_packages=("docker-ce" "docker-ce-cli" "containerd.io" "docker-compose-plugin" "docker-ce-rootless-extras" "docker-buildx-plugin")
+
+# Check if all Docker packages are installed
+all_packages_installed=true
+for package in "${required_packages[@]}"; do
+    if ! dpkg -l | grep -q "^ii\s*$package\s"; then
+        all_packages_installed=false
+        echo -e "${RED}Error:${NC} Package $package is not installed."
+    fi
+done
+
+# Cancel APT installation if any Docker package is missing
+if [ "$all_packages_installed" == "false" ]; then
+    echo -e "${RED}Error:${NC} Some Docker packages are missing. The installation cannot continue."
+    echo -e "To install Docker, use the following command:\n${YELLOW}curl -sSL https://get.docker.com/ | CHANNEL=stable bash${NC}"
+    echo -e "Once Docker is installed, enable it with:\n${YELLOW}sudo systemctl enable --now docker${NC}"
+    echo -e "Afterward, re-run the installation process."
+    exit 1
+fi
+
+echo -e "${GREEN}All Docker packages has been found! ${NC}Installing Pterodactyl Wings..."
